@@ -1,6 +1,7 @@
 import random, pygame, sys
 from pygame.locals import *
 
+# DEBUG = True
 FPS = 30
 WINDOWWIDTH = 640
 WINDOWHEIGHT = 480
@@ -10,8 +11,8 @@ REVEALSPEED = 8 # speed boxes' sliding reveals and covers, used in animations
 BOXSIZE = 40 # size of boxes
 GAPSIZE = 10 # size of gap between boxes
 
-BOARDWIDTH = 10 # number of columns of icons
-BOARDHEIGHT = 7 # number of rows of icons
+BOARDWIDTH = 5 # number of columns of icons
+BOARDHEIGHT = 4 # number of rows of icons
 
 assert (BOARDWIDTH * BOARDHEIGHT) % 2 == 0, 'Board needs to have and even number of boxes'
 
@@ -64,16 +65,18 @@ def main():
 
 	# generate Game board
 	mainBoard = getRandomizedBoard()
+	"""if DEBUG:
+		print 'gennerating mainBoard'"""
+	# 	print mainBoard
 	revealedBoexes = generateRevealedBoxesData(False)
-
 	firstSelection = None # record the first box clicked
-
 	DISPLAYSURF.fill(BGCOLOR)
 	startGameAnimation(mainBoard)
 
 	# main game loop
 	while True:
-		mouseClick = False
+		"""bug notice: originally assigned to mouseClick"""
+		mouseClicked = False
 
 		# draw the game board
 		DISPLAYSURF.fill(BGCOLOR)
@@ -106,7 +109,8 @@ def main():
 				# check whether two clicked boxes match
 				else:
 					icon1Shape, icon1Color = getShapeAndColor(mainBoard, firstSelection[0], firstSelection[1])
-					icon2Shape, icon2Color = getShapeAndColor(main, boxX, boxY)
+					"""bug fix: main -> mainBoard"""
+					icon2Shape, icon2Color = getShapeAndColor(mainBoard, boxX, boxY)
 
 					if icon1Shape  != icon2Shape or icon1Color != icon2Color:
 						pygame.time.wait(1000) # wait 1000ms
@@ -174,17 +178,19 @@ def splitList(n, inputList):
 
 # get the left top coordinate of the box[x][y]
 def leftTopCoordinate(x, y):
-	left = x * (BOXSIZE * GAPSIZE) + XMARGIN
-	top = y * (BOXSIZE * GAPSIZE) + YMARGIN
+	""" bug fix: * -> +"""
+	left = x * (BOXSIZE + GAPSIZE) + XMARGIN
+	top = y * (BOXSIZE + GAPSIZE) + YMARGIN
 	return (left, top)
 
 # get the box at a certain pixel
 def getBoxAtPixel(x, y):
-	for i in range(BOARDHEIGHT):
+	"""bug fix: BOARDHEIGHT -> BOARDWIDTH"""
+	for i in range(BOARDWIDTH):
 		for j in range(BOARDHEIGHT):
 			left, top = leftTopCoordinate(i, j)
 			# search the pixel in the box retangle
-			rectangle = pygame.rect(left, top, BOXSIZE, BOXSIZE)
+			rectangle = pygame.Rect(left, top, BOXSIZE, BOXSIZE)
 			if rectangle.collidepoint(x, y):
 				return (i, j)
 	return (None, None)
@@ -223,7 +229,7 @@ def drawBoxCovers(board, boxes, coverage):
 		FPSCLOCK.tick(FPS)
 
 def revealBoxesAnimation(board, box):
-	for coverage in range(BOXSIZE, -REVEALSPEED - 1, -REVEALSPEED):
+	for coverage in range(BOXSIZE, (- REVEALSPEED) - 1, - REVEALSPEED):
 		drawBoxCovers(board, box, coverage)
 
 def coverBoxesAnimation(board, box):
@@ -248,14 +254,19 @@ def drawHighLightBox(x, y):
 
 def startGameAnimation(board):
 	coveredBoxes = generateRevealedBoxesData(False)
+	"""if DEBUG:
+		print coveredBoxes"""
 	boxes = []
 	for x in range(BOARDWIDTH):
 		for y in range(BOARDHEIGHT):
 			boxes.append( (x, y) )
 	random.shuffle(boxes)
+	"""if DEBUG:
+		print boxes"""
 	# randomly reveal 8 boxes at a time
 	revealList = splitList(8, boxes)
-
+	"""if DEBUG:
+		print revealList"""
 	drawBoard(board, coveredBoxes)
 	for box in revealList:
 		revealBoxesAnimation(board, box)
@@ -278,4 +289,5 @@ def hasWon(revealedBoexes):
 			return False
 	return True
 
-main()
+if __name__ == '__main__':
+	main()
