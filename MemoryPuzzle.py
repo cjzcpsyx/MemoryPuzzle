@@ -75,7 +75,7 @@ def main():
 
 	# main game loop
 	while True:
-		"""bug notice: originally assigned to mouseClick"""
+		"""bug fix mouseClick -> mouseClicked"""
 		mouseClicked = False
 
 		# draw the game board
